@@ -1,0 +1,14 @@
+{
+    "goodbye_slide": "goodbye_slide.png",
+    "experiment_first_trio": [
+        "uni-landau.de/cocoweb/WCST/WCST.html",
+        "uni-landau.de/cocoweb/ANTISACCADE/ATSC.html",
+        "uni-landau.de/cocoweb/ComplexSpan/ComplexSpan.html"
+    ],
+    "experiment_second_trio": [
+        "https://uni-landau.de/biopsy/DUMMY.html",
+        "https://uni-landau.de/biopsy/SACT/SACT.html",
+        "https://uni-landau.de/biopsy/FIST/FIST.html"
+    ]
+
+}
