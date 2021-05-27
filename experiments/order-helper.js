@@ -1,9 +1,3 @@
-// import jquery
-var script = document.createElement('script');
-script.src = 'https://code.jquery.com/jquery-3.4.1.min.js';
-script.type = 'text/javascript';
-document.getElementsByTagName('head')[0].appendChild(script);
-
 // load a .json file into a js object
 const load_json = (json_file) => {
     return function () {
@@ -60,6 +54,10 @@ const searchJson = (obj, valueLookup) => {
 const determine_position = (json_config) => {
     const experimentUrl = window.location.href
     const key = searchJson(json_config, experimentUrl)
+    if (!key) {
+        throw new Error(`couldn't find "${experimentUrl}" in given json_config`)
+    }
+
     const temp_arr = json_config[key]
     const experiment_position = temp_arr.indexOf(experimentUrl) // determines experiment position
 
@@ -68,6 +66,14 @@ const determine_position = (json_config) => {
         "position": experiment_position,
         "isLast": experiment_position === temp_arr.length - 1
     }
+}
+
+const get_next_url = (experiment_data, json_config) => {
+    if (experiment_data.isLast === true) {
+        throw new Error("this experiment has no next experiment as it is the last in its group")
+    }
+    return json_config[experiment_data.group][experiment_data.position + 1]
+
 }
 
 

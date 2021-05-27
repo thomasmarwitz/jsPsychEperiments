@@ -5,15 +5,32 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Experiment 1</title>
-    <script src="../jspsych-6.2.0/jspsych.js"></script>
-    <script src="../jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
-    <script src="../jspsych-6.2.0/plugins/jspsych-survey-text.js"></script>
-    <script src="../jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
-    <link href="../jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
+    <script src="jspsych-6.2.0/jspsych.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.2.0/plugins/jspsych-resize.js"></script>
+    <!-- Load jquery-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <!-- Import custom script -->
+    <script src="order-helper.js"></script>
+    <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
 </head>
 <body></body>
 <script>
 
+    // SUBJECT
+    var SUBJECT_ID = null
+
+    // RESIZING
+    const WIDTH_CREDIT_CARD = 8.56
+    const HEIGHT_CREDIT_CARD = 5.4
+    const WIDTH_EXPERIMENT_CM = 29
+    const HEIGHT_EXPERIMENT_CM = 17
+    var PX_PER_CM = null; // set after resize (first) Trial
+
+
+    // input field: let subject enter his "custom" id based on a simple algorithm
     var enter_subject_id = {
         type: 'survey-text',
         questions: [
@@ -21,15 +38,33 @@
         'die ersten zwei Buchstaben Ihrer Straße und Ihr Geburtsjahr',
          placeholder:"Bspw. SuMo2000", rows: 1, required: true, name: 'SubjectID'},
         ],
-        data: {test_part: "enter_subject_id"}
+        data: {test_part: "enter_subject_id"},
+        on_finish: () => {
+            SUBJECT_ID = exractSubjectID()
+        }
     }
 
-    /*
-    var fullscreen = {
-        type: "fullscreen",
-        fullscreen_mode: true,
+    // resizing
+    // handles some resizing stuff and assigns PX_PER_CM!
+    const trialResizeScale = {
+        type: "resize",
+        item_width: WIDTH_CREDIT_CARD,
+        item_height: HEIGHT_CREDIT_CARD,
+        prompt: "<p>Click and drag the lower right corner of the box until the box is the same size as a credit card held up to the screen.</p>",
+        pixels_per_unit: 40, // seems to be irrelevant when setting manually, like I do. Chosen kinda arbitraily
+        on_finish: (data) => {
+            PX_PER_CM = data.final_width_px / WIDTH_CREDIT_CARD // credit card size
+            // update experiment target
+            const HEIGHT_PX = HEIGHT_EXPERIMENT_CM * PX_PER_CM
+            const WIDTH_PX = WIDTH_EXPERIMENT_CM * PX_PER_CM
+            $("#jspsych-target").height(HEIGHT_PX).width(WIDTH_PX)
+            // setMaxImgValues(WIDTH_PX * 0.96, HEIGHT_PX * 0.84)
+
+            //stylesheet = document.styleSheets[0]
+            //stylesheet.insertRule(`.card-img { height: ${Math.round(HEIGHT_EXPERIMENT_CM / 6 * PX_PER_CM)}px;}`, 0);
+        }   
     }
-    */
+
 
     var trial = {
         type: "html-keyboard-response",
@@ -50,11 +85,38 @@
         return subject_id.substring(14, subject_id.length-2)
     }
 
+    // forwards to a given url with the url params subjectid and 
+    function forward(url, subjectid, px_per_cm) {
+        window.location.replace(`${url}?subjectID=${subjectid}&pxpercm=${px_per_cm}`)
+    }
+
+    const timeline = []
+
+
+    const json_config = load_json("config.json")
+    const experiment_data = determine_position(json_config)
+
+    // add subject and resize trial?
+    if (experiment_data.position === 0) {
+        timeline.push(trialResizeScale)
+        timeline.push(enter_subject_id)
+    }
+    
+
+    timeline.push(...[trial, end_experiment]) // normal experiment
+
     jsPsych.init({
-        timeline: [enter_subject_id, trial, end_experiment],
+        timeline: timeline,
         on_finish: function() {
-            alert("Ihre Daten wurden gespeichert, Sie werden weitergeleitet")
-            window.location.replace(`experiment2.html?subjectID=${exractSubjectID()}`)
+            
+            if (experiment_data.isLast === true) { // check for truth (not only truthiness)
+                alert("Ihre Daten wurden gespeichert, Sie werden weitergeleitet")
+                const next_url = get_next_url(experiment_data, json_config)
+                forward(experiment_data, sub)
+            }
+
+
+            
         }
     })
 
