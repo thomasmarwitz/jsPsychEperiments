@@ -52,7 +52,15 @@ const searchJson = (obj, valueLookup) => {
  * - whether the experiment is the last one
  */
 const determine_position = (json_config) => {
-    const experimentUrl = window.location.href
+    
+    // remove params, get base url
+    let experimentUrl = window.location.href
+    if (experimentUrl.includes("?")) {
+        const paramStartIndex = experimentUrl.indexOf("?")
+        experimentUrl = experimentUrl.substring(0, paramStartIndex)
+    }
+    // else, do nothing
+
     const key = searchJson(json_config, experimentUrl)
     if (!key) {
         throw new Error(`couldn't find "${experimentUrl}" in given json_config`)
