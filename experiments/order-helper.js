@@ -6,7 +6,7 @@ document.getElementsByTagName('head')[0].appendChild(script);
 
 // load a .json file into a js object
 const load_json = (json_file) => {
-    return load_json = function () {
+    return function () {
         var jsonTemp = null;
             $.ajax({
                 'async': false,
@@ -48,12 +48,26 @@ const searchJson = (obj, valueLookup) => {
     return false
 }
 
+/**
+ * Determines what position the experiment has, based on a loaded .json config file
+ * 
+ * @param {*} json_config the json file loaded as javascript obj
+ * @returns an object holding all relevant information:
+ * - what group the experiment belongs to (1 or 2)
+ * - what position the experiment has within its group
+ * - whether the experiment is the last one
+ */
 const determine_position = (json_config) => {
     const experimentUrl = window.location.href
-    const key = searchJson(json_config)
-    const experiment_position = json_config[key].indexOf(experimentUrl) // determines experiment position
+    const key = searchJson(json_config, experimentUrl)
+    const temp_arr = json_config[key]
+    const experiment_position = temp_arr.indexOf(experimentUrl) // determines experiment position
 
-    return (key, experiment_position)
+    return {
+        "group": key,
+        "position": experiment_position,
+        "isLast": experiment_position === temp_arr.length - 1
+    }
 }
 
 

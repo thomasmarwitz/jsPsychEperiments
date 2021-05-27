@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment 3</title>
+    <script src="../jspsych-6.2.0/jspsych.js"></script>
+    <script src="../jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <link href="../jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
+</head>
+<body></body>
+<script>
+
+
+    let subjectID = "";
+    let isSubjectValid = typeof jsPsych.data.getURLVariable('subjectID') != 'undefined'
+    if (isSubjectValid) {
+        subjectID = jsPsych.data.getURLVariable("subjectID")
+    }
+
+    trial = {
+        type: "html-keyboard-response",
+        stimulus: function () {
+            if (isSubjectValid) {
+                return  "<p>Willkommen zum 3. Experiment</p>"+
+                        `<p>Deine Probanden-ID lautet ${subjectID}</p>`
+            } else {
+                return "Fehler - Zugriff auf das Experiment ohne gültige Probanden ID"
+            }
+        },
+        choices: ["space"]
+    }
+
+    var end_experiment = {
+        type: "html-keyboard-response",
+        stimulus: "<p>Vielen Dank für Ihre Teilnahme an Experiment 3</p>"+
+        "<p>Wenn Ihre Daten gespeichert wurden, können Sie das Fenster schließen.</p>",
+        choices: ["space"],
+    }
+
+    jsPsych.init({
+        timeline: [trial, end_experiment],
+        on_finish: function() {
+            alert("Ihre Daten wurden gespeichert, Sie können das Fenster nun schließen.")
+            //window.location.replace(`experiment3.html?subjectID=${subjectID}`)
+        }
+    })
+
+</script>
+
+</html>

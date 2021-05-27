@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment 1</title>
+    <script src="../jspsych-6.2.0/jspsych.js"></script>
+    <script src="../jspsych-6.2.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="../jspsych-6.2.0/plugins/jspsych-survey-text.js"></script>
+    <script src="../jspsych-6.2.0/plugins/jspsych-fullscreen.js"></script>
+    <link href="../jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
+</head>
+<body></body>
+<script>
+
+    var enter_subject_id = {
+        type: 'survey-text',
+        questions: [
+        {prompt: 'Geben Sie Ihre spezifische Probanden ID ein: Die ersten zwei Buchstaben des Vornames Ihrer Mutter, ' +
+        'die ersten zwei Buchstaben Ihrer Straße und Ihr Geburtsjahr',
+         placeholder:"Bspw. SuMo2000", rows: 1, required: true, name: 'SubjectID'},
+        ],
+        data: {test_part: "enter_subject_id"}
+    }
+
+    /*
+    var fullscreen = {
+        type: "fullscreen",
+        fullscreen_mode: true,
+    }
+    */
+
+    var trial = {
+        type: "html-keyboard-response",
+        stimulus: "<p>Willkommen zum 1. Experiment</p>" + 
+                "<p>Drücken Sie Leertaste, um zu beginnen</p>",
+        choices: ["space"]
+    }
+
+    var end_experiment = {
+        type: "html-keyboard-response",
+        stimulus: "<p>Vielen Dank für Ihre Teilnahme an Experiment 1</p>"+
+        "<p>Wenn Ihre Daten gespeichert wurden bestätigen Sie bitte die Weiterleitung zum nächsten Experiment</p>",
+        choices: ["space"],
+    }
+
+    function exractSubjectID() {
+        let subject_id = jsPsych.data.get().filter({test_part: "enter_subject_id"}).values()[0].responses
+        return subject_id.substring(14, subject_id.length-2)
+    }
+
+    jsPsych.init({
+        timeline: [enter_subject_id, trial, end_experiment],
+        on_finish: function() {
+            alert("Ihre Daten wurden gespeichert, Sie werden weitergeleitet")
+            window.location.replace(`experiment2.html?subjectID=${exractSubjectID()}`)
+        }
+    })
+
+</script>
+
+</html>
