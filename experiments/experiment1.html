@@ -13,7 +13,7 @@
     <!-- Load jquery-->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <!-- Import custom script -->
-    <script src="order-helper.js"></script>
+    <script src="../order-helper.js"></script>
     <link href="jspsych-6.2.0/css/jspsych.css" rel="stylesheet" type="text/css">
 </head>
 <body></body>
@@ -66,10 +66,20 @@
     }
 
 
+    // extract url params and assigns it 
+    const assign_url_data = () => { 
+        SUBJECTID = jsPsych.data.getURLVariable("subjectid")
+        PX_PER_CM = jsPsych.data.getURLVariable("pxpercm")
+    }
+
+
     var trial = {
         type: "html-keyboard-response",
-        stimulus: "<p>Willkommen zum 1. Experiment</p>" + 
-                "<p>Drücken Sie Leertaste, um zu beginnen</p>",
+        stimulus: function() {
+            return "<p>Willkommen zum 1. Experiment</p>" + 
+                    `<p>SubjectID: ${SUBJECT_ID}, PX_PER_CM: ${PX_PER_CM}</p>` + 
+                "<p>Drücken Sie Leertaste, um zu beginnen</p>"
+        },
         choices: ["space"]
     }
 
@@ -87,7 +97,7 @@
 
     // forwards to a given url with the url params subjectid and 
     function forward(url, subjectid, px_per_cm) {
-        window.location.replace(`${url}?subjectID=${subjectid}&pxpercm=${px_per_cm}`)
+        window.location.replace(`${url}?subjectid=${subjectid}&pxpercm=${px_per_cm}`)
     }
 
     const timeline = []
@@ -109,13 +119,13 @@
         timeline: timeline,
         on_finish: function() {
             
-            if (experiment_data.isLast === true) { // check for truth (not only truthiness)
+            if (experiment_data.isLast === false) { // check for truth (not only truthiness)
                 alert("Ihre Daten wurden gespeichert, Sie werden weitergeleitet")
                 const next_url = get_next_url(experiment_data, json_config)
-                forward(experiment_data, sub)
+                forward(next_url, SUBJECT_ID, PX_PER_CM)
+            } else {
+                alert("Das experiment ist hier zu ende")
             }
-
-
             
         }
     })
